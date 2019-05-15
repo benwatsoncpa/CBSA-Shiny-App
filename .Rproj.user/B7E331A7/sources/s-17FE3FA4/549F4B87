@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1557957718211.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3438354007",
+    "id" : "549F4B87",
+    "lastKnownWriteTime" : 1557958109,
+    "last_content_update" : 1557958109427,
+    "path" : "C:/Users/Dragonfly/Desktop/CBSA Shiny/CBSA_Border_Wait_Times/app.R",
+    "project_path" : "CBSA_Border_Wait_Times/app.R",
+    "properties" : {
+        "cursorPosition" : "57,61",
+        "scrollLine" : "49"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

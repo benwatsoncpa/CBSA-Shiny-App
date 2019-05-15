@@ -1,0 +1,12 @@
+name: CBSA_Border_Wait_Times
+title: CBSA_Border_Wait_Times
+username:
+account: benwatsonca
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 931924
+bundleId: 2087603
+url: https://benwatsonca.shinyapps.io/CBSA_Border_Wait_Times/
+when: 1557958175.7764
+asMultiple: FALSE
+asStatic: FALSE

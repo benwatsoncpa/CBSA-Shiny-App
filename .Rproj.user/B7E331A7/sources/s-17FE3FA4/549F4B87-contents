@@ -1,0 +1,107 @@
+#
+# This is a Shiny web application. You can run the application by clicking
+# the 'Run App' button above.
+#
+# Find out more about building applications with Shiny here:
+#
+#    http://shiny.rstudio.com/
+#
+# Load libraries and data -----------------------------------------------------
+rm(list=ls())
+
+library(data.table)
+library(tidyverse)
+library(tm)
+library(ggthemes)
+
+df <- fread("bwt-taf-2010-2014-eng.csv")
+
+# Fix column headings ---------------------------------------------------------
+
+fix_names <- function(x){
+    x <- removePunctuation(x)
+    x <- tolower(x)
+    x <- gsub(" ",".",x)
+}
+
+names(df) <- fix_names(names(df))
+
+# Create province variable ----------------------------------------------------
+df[,province:=gsub(".*, ","",location)]
+
+# Convert updated to a datetime variable --------------------------------------
+df[,updated:=as.POSIXct(df$updated,format="%Y-%m-%d %H:%M")]
+
+# Create variables out of datetime components ---------------------------------
+df[,weekday:=weekdays(updated)]
+df[,month:=format(updated,"%B")]
+df[,hour:=format(df$updated,"%H")]
+
+# Convert commerical flow to numeric ------------------------------------------
+df[commercial.flow=="No Delay",commercial.flow:="0"]
+df[,commercial.flow:=as.numeric(commercial.flow)]
+
+# Convert travellers flow to numeric ------------------------------------------
+df[travellers.flow=="No Delay",travellers.flow:="0"]
+df[,travellers.flow:=as.numeric(travellers.flow)]
+
+month.list <- c("January","February","March","April","May","June",
+                "July","August","September","October","November","December")
+
+weekday.list <- c("Sunday","Monday","Tuesday","Wednesday",
+                  "Thursday","Friday","Saturday")
+
+# Define UI for application that draws a histogram
+ui <- fluidPage(
+
+    # Application title
+    titlePanel("CBSA Historical Border Wait Times (2010-2014)"),
+
+    # Sidebar with a slider input for number of bins 
+    sidebarLayout(
+        sidebarPanel(
+            selectInput("cbsa.office",
+                        "CBSA Office:",
+                        choices=sort(unique(df$cbsa.office))),
+            checkboxGroupInput("weekday",
+                               "Day of Week:",
+                               choices=weekday.list,
+                               selected=weekday.list),
+            checkboxGroupInput("month",
+                               "Month:",
+                               choices=month.list,
+                               selected=month.list)
+        ),
+
+        # Show a plot of the generated distribution
+        mainPanel(
+           plotOutput("cbsaPlot")
+        )
+    )
+)
+
+# Define server logic required to draw a histogram
+server <- function(input, output) {
+    
+    output$cbsaPlot <- renderPlot({
+        vis <- df %>%
+            filter(cbsa.office==input$cbsa.office) %>%
+            filter(weekday %in% input$weekday) %>%
+            filter(month %in% input$month) %>%
+            group_by(hour) %>%
+            summarise(travellers.flow=mean(travellers.flow,na.rm=T)) %>%
+            data.table()
+        
+        ggplot(vis,aes(hour,travellers.flow))+
+            geom_bar(stat="identity")+
+            theme_economist()+
+            scale_fill_economist()+
+            labs(title=paste("Average Weight Times by Hour: ",input$cbsa.office,sep=''),
+                 x="Hour of Day",
+                 y="Traveller Delay (Mins)")
+        
+    })
+}
+
+# Run the application 
+shinyApp(ui = ui, server = server)
